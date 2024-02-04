@@ -755,16 +755,10 @@ chroot_execute "apt install --yes grub-efi-amd64 grub-efi-amd64-signed linux-ima
 echo "======= setting up grub =========="
 chroot_execute "echo 'grub-pc grub-pc/install_devices_empty   boolean true' | debconf-set-selections"
 chroot_execute "DEBIAN_FRONTEND=noninteractive apt install --yes grub-pc"
-<<<<<<< HEAD
-for disk in ${v_selected_disks[@]}; do
-  chroot_execute "grub-install $disk"
-done
-=======
 # for UEFI
 chroot_execute "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy"
 # for legacy BIOS
 # chroot_execute "grub-install ${v_selected_disks[0]}"
->>>>>>> a07623c (chore: set up efi)
 
 chroot_execute "sed -i 's/#GRUB_TERMINAL=console/GRUB_TERMINAL=console/g' /etc/default/grub"
 chroot_execute "sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"net.ifnames=0\"|' /etc/default/grub"
@@ -871,7 +865,7 @@ fi
 chroot_execute "echo RESUME=none > /etc/initramfs-tools/conf.d/resume"
 
 echo "======= unmounting filesystems and zfs pools =========="
-unmount_and_export_fs
+#unmount_and_export_fs
 
 echo "======== setup complete, rebooting ==============="
-reboot
+#reboot
