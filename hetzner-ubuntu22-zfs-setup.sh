@@ -537,14 +537,12 @@ echo -n "$v_passphrase" | zpool create \
 zfs create -o canmount=off -o mountpoint=none "$v_rpool_name/ROOT"
 zfs create -o canmount=off -o mountpoint=none "$v_bpool_name/BOOT"
 
-zfs create -o canmount=noauto -o mountpoint=/ "$v_rpool_name/ROOT/ubuntu"
-zfs mount "$v_rpool_name/ROOT/ubuntu"
+zfs create -o mountpoint=/ "$v_rpool_name/ROOT/ubuntu"
 
-zfs create -o canmount=noauto -o mountpoint=/boot "$v_bpool_name/BOOT/ubuntu"
-zfs mount "$v_bpool_name/BOOT/ubuntu"
+zfs create -o mountpoint=/boot "$v_bpool_name/BOOT/ubuntu"
 
 zfs create                                 "$v_rpool_name/home"
-#zfs create -o mountpoint=/root             "$v_rpool_name/home/root"
+# zfs create -o mountpoint=/root             "$v_rpool_name/home/root"
 zfs create -o canmount=off                 "$v_rpool_name/var"
 zfs create                                 "$v_rpool_name/var/log"
 zfs create                                 "$v_rpool_name/var/spool"
@@ -839,23 +837,8 @@ chroot_execute "update-initramfs -u -k all"
 echo "======= update grub =========="
 chroot_execute "update-grub"
 
-echo "======= setting up zed =========="
-
-chroot_execute "zfs set canmount=noauto $v_rpool_name"
-
 echo "======= setting mountpoints =========="
 chroot_execute "umount /boot/efi"
-chroot_execute "zfs set mountpoint=legacy $v_bpool_name/BOOT/ubuntu"
-chroot_execute "echo $v_bpool_name/BOOT/ubuntu /boot zfs nodev,relatime,x-systemd.requires=zfs-mount.service,x-systemd.device-timeout=10 0 0 > /etc/fstab"
-
-chroot_execute "zfs set mountpoint=legacy $v_rpool_name/var/log"
-chroot_execute "echo $v_rpool_name/var/log /var/log zfs nodev,relatime 0 0 >> /etc/fstab"
-chroot_execute "zfs set mountpoint=legacy $v_rpool_name/var/spool"
-chroot_execute "echo $v_rpool_name/var/spool /var/spool zfs nodev,relatime 0 0 >> /etc/fstab"
-chroot_execute "zfs set mountpoint=legacy $v_rpool_name/var/tmp"
-chroot_execute "echo $v_rpool_name/var/tmp /var/tmp zfs nodev,relatime 0 0 >> /etc/fstab"
-chroot_execute "zfs set mountpoint=legacy $v_rpool_name/tmp"
-chroot_execute "echo $v_rpool_name/tmp /tmp zfs nodev,relatime 0 0 >> /etc/fstab"
 
 echo "========= add swap, if defined"
 if [[ $v_swap_size -gt 0 ]]; then
@@ -865,7 +848,7 @@ fi
 chroot_execute "echo RESUME=none > /etc/initramfs-tools/conf.d/resume"
 
 echo "======= unmounting filesystems and zfs pools =========="
-#unmount_and_export_fs
+unmount_and_export_fs
 
 echo "======== setup complete, rebooting ==============="
 #reboot
